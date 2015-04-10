@@ -1,0 +1,13 @@
+[package]
+
+name = "posix-pts"
+version = "0.0.1"
+authors = ["hexid <nick.currier@gmail.com>"]
+repository = "https://github.com/hexid/posix-pts.rs"
+description = """
+Rust library to interface with POSIX-defined pseudoterminal functions
+man pts(4)
+"""
+
+[dependencies]
+libc = "*"
