@@ -1,9 +1,9 @@
 [package]
 
-name = "posix-pts"
+name = "posix_pts"
 version = "0.0.1"
 authors = ["hexid <nick.currier@gmail.com>"]
-repository = "https://github.com/hexid/posix-pts.rs"
+repository = "https://github.com/hexid/posix_pts.rs"
 description = """
 Rust library to interface with POSIX-defined pseudoterminal functions
 man pts(4)
