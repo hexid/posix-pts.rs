@@ -1,39 +1,25 @@
 extern crate libc;
 
-use libc::{c_char,c_int,size_t};
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::os::unix::io::RawFd;
 use std::str;
 
-#[link(name="c")]
-extern {
-    fn posix_openpt(mode: c_int) -> c_int;
-    fn grantpt(fd: c_int) -> c_int;
-    fn unlockpt(fd: c_int) -> c_int;
-    fn ptsname_r(fd: c_int, buf: *mut c_char, buflen: size_t) -> c_int;
-    fn ptsname(fd: c_int) -> *const c_char;
-}
+mod raw;
 
 pub const RDWR: i32 = 2;
 pub const NOCTTY: i32 = 256;
 
 pub fn open(mode: i32) -> RawFd {
-    unsafe {
-        posix_openpt(mode)
-    }
+    unsafe { raw::posix_openpt(mode) }
 }
 
 pub fn grant(fd: RawFd) -> bool {
-    unsafe {
-        grantpt(fd) == 0
-    }
+    unsafe { raw::grantpt(fd) == 0 }
 }
 
 pub fn unlock(fd: RawFd) -> bool {
-    unsafe {
-        unlockpt(fd) == 0
-    }
+    unsafe { raw::unlockpt(fd) == 0 }
 }
 
 pub fn name_r<'a>(fd: RawFd) -> &'a str {
@@ -49,7 +35,7 @@ pub fn name_r<'a>(fd: RawFd) -> &'a str {
 
         // most implementations I've seen for ptsname(int) use 64 characters
         // for the buffer, so I will assume this is long enough for now
-        ptsname_r(fd, buf as *mut i8, 64u64);
+        raw::ptsname_r(fd, buf as *mut i8, 64u64);
         let name = CStr::from_ptr(buf).to_bytes();
         str::from_utf8(name).ok().unwrap()
     }
@@ -58,7 +44,7 @@ pub fn name_r<'a>(fd: RawFd) -> &'a str {
 // unsafe due to concurrency issues with the ptsname(int)
 // call storing the string in static memory
 pub unsafe fn name<'a>(fd: RawFd) -> &'a str {
-    let pts_name: *const i8 = ptsname(fd);
+    let pts_name: *const i8 = raw::ptsname(fd);
     let name = CStr::from_ptr(pts_name).to_bytes();
     str::from_utf8(name).ok().unwrap()
 }
